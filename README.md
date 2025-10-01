@@ -4,6 +4,26 @@ A PowerShell toolkit to discover Phase 2 MFA risks in Azure/Entra and produce ac
 
 ---
 
+## 0. Executive Summary
+
+This executive summary highlights the critical dates and top actions organizations must take to prepare for Microsoft's Phase 2 Mandatory Multi-Factor Authentication (MFA) enforcement.
+
+### Key Dates
+- October 1, 2025 – Azure Resource Manager Phase 2 rollout begins (MFA required for create/update/delete).
+- August 30, 2025 – Partner Center portal MFA enforcement.
+- September 30, 2025 – Partner Center API becomes MFA-ready.
+- April 1, 2026 – Partner Center API requires MFA.
+- July 1, 2026 – Final postponement deadline for Azure Resource Manager MFA Phase 2.
+
+### Top 5 Immediate Actions
+1. Audit all admin and service accounts; eliminate password-based automation.
+2. Enable Conditional Access or Security Defaults for MFA across the tenant.
+3. Transition automation to Managed Identities or Service Principals.
+4. Distribute and enforce FIDO2 keys/passkeys for administrators.
+5. Validate key scripts, pipelines, and Partner Center API integrations under MFA enforcement.
+
+---
+
 ## 1. Features
 
 - Privileged role inventory & potential break-glass detection
@@ -124,3 +144,50 @@ Generated under `./output/<timestamp>/`:
 
 - **License**: MIT
 - Built by Flow Evolve to help teams prepare for Microsoft’s MFA Phase 2.
+
+---
+
+## 11. Readiness Checklist
+
+### 1. Key Deadlines
+- Azure Resource Manager (Phase 2):
+  - October 1, 2025: Safe-deployment rollout begins (MFA required for create/update/delete).
+  - Up to July 1, 2026: Postponement window available.
+- Partner Center:
+  - August 30, 2025: MFA required for portal sign-in.
+  - September 30, 2025: API "MFA-ready".
+  - April 1, 2026: MFA mandatory for Partner Center APIs.
+
+### 2. Tenant & Identity Prep
+- Audit all user accounts with Azure roles (Contributor, Owner, Global Admin).
+- Audit service accounts tied to username+password.
+- Enable Security Defaults or Conditional Access MFA policies.
+- Ensure break-glass accounts exist (tested with hardware keys).
+- Enroll admins in FIDO2 keys or passkeys.
+
+### 3. Automation & Service Accounts
+- Inventory all scripts, pipelines, IaC, CLI/PowerShell jobs calling Azure APIs.
+- Replace credential-based service accounts with Managed Identities or Service Principals.
+- Validate automation runs without interactive MFA prompts.
+
+### 4. Tooling & Client Versions
+- Azure CLI ≥ 2.76.
+- Azure PowerShell ≥ 14.3.
+- Update SDKs to support MFA token refresh.
+- Test Terraform/Bicep/ARM pipelines with workload identities.
+
+### 5. Governance & Communications
+- Create internal policy memo on MFA enforcement impact and dates.
+- Train admins and developers on new auth methods.
+- Update runbooks for automation failures (expired credentials → reconfigure identities).
+- Define exception handling process (postponement requests, migration timelines).
+
+### 6. Validation / Dry Runs
+- Run test tenant with Phase 2 enforcement to validate automation.
+- Monitor dashboards for MFA-related failures.
+- Track 100% migration of service accounts.
+
+### 7. Partner Center Specific
+- Update Partner Center API integrations for OAuth + MFA support.
+- Validate token refresh cycles in automation.
+- Communicate changes to third-party integrators or CSP resellers.
