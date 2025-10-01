@@ -1,5 +1,11 @@
 # Microsoft MFA Phase 2 – Audit & Recommendations Kit
 
+[![PowerShell Lint](https://github.com/flowevolve/mfa-phase2-audit-kit/workflows/PowerShell%20Lint%20(PSScriptAnalyzer)/badge.svg)](https://github.com/flowevolve/mfa-phase2-audit-kit/actions/workflows/ps-lint.yml)
+[![Markdown Lint](https://github.com/flowevolve/mfa-phase2-audit-kit/workflows/Markdown%20Lint/badge.svg)](https://github.com/flowevolve/mfa-phase2-audit-kit/actions/workflows/markdownlint.yml)
+[![YAML Lint](https://github.com/flowevolve/mfa-phase2-audit-kit/workflows/YAML%20Lint/badge.svg)](https://github.com/flowevolve/mfa-phase2-audit-kit/actions/workflows/yamllint.yml)
+[![CodeQL](https://github.com/flowevolve/mfa-phase2-audit-kit/workflows/CodeQL%20(PowerShell)/badge.svg)](https://github.com/flowevolve/mfa-phase2-audit-kit/actions/workflows/codeql.yml)
+[![Gitleaks](https://github.com/flowevolve/mfa-phase2-audit-kit/workflows/Gitleaks%20(Secrets%20Scan)/badge.svg)](https://github.com/flowevolve/mfa-phase2-audit-kit/actions/workflows/gitleaks.yml)
+
 A PowerShell toolkit to discover Phase 2 MFA risks in Azure/Entra and produce actionable recommendations. Optional modules assess GitHub Actions and Azure DevOps to replace long-lived PATs with OIDC/workload identities.
 
 ---
@@ -62,6 +68,20 @@ Optional:
 
 ## 4. Quick Start
 
+### Option 1: One-Click Bootstrap (Recommended)
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass -Force
+git clone https://github.com/<org>/mfa-phase2-audit-kit.git
+cd mfa-phase2-audit-kit
+
+# Install modules and run full audit
+.\scripts\bootstrap.ps1
+
+# Or with CI/CD integration
+.\scripts\bootstrap.ps1 -IncludeGitHub -IncludeAzDO
+```
+
+### Option 2: Manual Setup
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass -Force
 git clone https://github.com/<org>/mfa-phase2-audit-kit.git
@@ -73,6 +93,14 @@ $env:AZDO_ORG_URL = 'https://dev.azure.com/<org>'
 $env:AZDO_PAT     = '<azdo_pat>'      # if auditing AzDO
 
 .\scripts\Run-Audit.ps1 -OutputRoot .\output -IncludeGitHub -GitHubOrg <org> -IncludeAzDO
+```
+
+### Option 3: Individual Scripts
+```powershell
+# Run specific audit modules
+.\src\core\02_Audit-PrivilegedUsers.ps1
+.\src\core\04_Audit-ConditionalAccess.ps1
+.\src\core\05_Audit-AdminAuthMethods.ps1
 ```
 
 ---

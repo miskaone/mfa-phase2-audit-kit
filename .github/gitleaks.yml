@@ -1,0 +1,26 @@
+
+name: Gitleaks (Secrets Scan)
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: detect --source . --config .github/gitleaks.toml --verbose --redact --no-banner --report-path gitleaks-report.json
+
+      - name: Upload artifact (gitleaks report)
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.json

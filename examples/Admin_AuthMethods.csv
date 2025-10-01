@@ -1,0 +1,6 @@
+UserId,UserPrincipalName,DisplayName,IsPrivileged,FIDO2,Passkey,AuthenticatorApp,Phone,PasswordlessEnabled,EffectiveMFAEnabled
+11111111-1111-1111-1111-111111111111,alice@contoso.com,Alice Johnson,True,True,False,True,False,True,True
+22222222-2222-2222-2222-222222222222,bob@contoso.com,Bob Smith,True,False,False,False,True,False,False
+33333333-3333-3333-3333-333333333333,carol@contoso.com,Carol Davis,True,False,True,True,False,True,True
+44444444-4444-4444-4444-444444444444,david@contoso.com,David Lee,False,True,False,True,True,True,True
+55555555-5555-5555-5555-555555555555,ellen@contoso.com,Ellen Brown,False,False,False,False,False,False,False

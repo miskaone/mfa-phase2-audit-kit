@@ -1,3 +1,4 @@
+
 <# 
 .SYNOPSIS
   List MI-capable resources and whether identity is configured
@@ -21,17 +22,18 @@
 
 [CmdletBinding()]
 param(
-  [Parameter()][string]$OutputRoot = ".\output"
+  [Parameter()][string]$OutputRoot = ".\output",
+  [Parameter()][int]$DaysBack = 14
 )
 
-Import-Module "$PSScriptRoot\..\..\scripts\Common.psm1" -Force
+Import-Module "/mnt/data/scripts/Common.psm1" -Force
 Set-StrictMode -Version Latest
 
 $ErrorActionPreference = "Stop"
 
-# 1) Ensure modules & connect Azure
-Ensure-Modules -Names @("Az.Accounts", "Az.Resources")
-Connect-AzIfNeeded
+# 1) Ensure modules & connect Graph
+Ensure-Modules -Names @("Microsoft.Graph", "Az.Accounts", "Az.Resources")
+Connect-GraphIfNeeded -Scopes @("Directory.Read.All")
 
 # 2) Resolve output path
 $out = New-OutputPath -Root $OutputRoot -Prefix "output"
@@ -44,6 +46,7 @@ function Get-MIResources {
     return @()
 }
 function Invoke-TargetQuery {
+    param([int]$DaysBack)
     $rows = Get-MIResources
     return $rows
 }
@@ -53,7 +56,7 @@ function Invoke-TargetQuery {
 Write-Log INFO "Running Audit-MI-CapableResources ..."
 
 try {
-    $rows = Invoke-TargetQuery
+    $rows = Invoke-TargetQuery -DaysBack $DaysBack
     Export-Table -Data $rows -Path $csv
 } catch {
     Write-Log ERROR $_.Exception.Message

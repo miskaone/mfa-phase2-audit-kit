@@ -1,3 +1,4 @@
+
 <# 
 .SYNOPSIS
   Audit service connections, variable groups, and pipelines for PAT usage vs federated identities
@@ -17,17 +18,12 @@ param(
   [Parameter()][string]$OutputRoot = ".\output"
 )
 
-Import-Module "$PSScriptRoot\..\..\scripts\Common.psm1" -Force
+Import-Module "/mnt/data/scripts/Common.psm1" -Force
 Set-StrictMode -Version Latest
 
 $ErrorActionPreference = "Stop"
 
-# 1) Validate environment variables
-if (-not $env:AZDO_PAT -or -not $env:AZDO_ORG_URL) {
-    throw "AZDO_PAT and AZDO_ORG_URL environment variables are required for Azure DevOps audit"
-}
-
-# 2) Resolve output path
+# 1) Resolve output path
 $out = New-OutputPath -Root $OutputRoot -Prefix "output"
 $csv = Join-Path $out "AzDO_Findings.csv"
 

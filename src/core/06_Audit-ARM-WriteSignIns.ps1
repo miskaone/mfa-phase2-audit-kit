@@ -1,23 +1,65 @@
-<#
-.SYNOPSIS
-Audits non-interactive Azure Resource Manager sign-ins with write permissions.
+# src/core/06_Audit-ARM-WriteSignIns.ps1
+. "$PSScriptRoot/../common/Graph.Bootstrap.ps1"
+Connect-GraphAudience -Scopes @('AuditLog.Read.All')
 
-.DESCRIPTION
-Analyzes sign-in logs to identify non-interactive operations that will require MFA under Phase 2.
-#>
+function Get-SignInsWindow {
+    param(
+        [datetime]$Start = (Get-Date).AddDays(-7),
+        [datetime]$End   = (Get-Date)
+    )
+    # Use $filter for date window; select fields we need
+    $filter = "createdDateTime ge $($Start.ToString('o')) and createdDateTime le $($End.ToString('o'))"
+    Invoke-GraphWithRetry {
+        Get-MgAuditLogSignIn -All -Filter $filter -Property "id,createdDateTime,userDisplayName,userPrincipalName,appDisplayName,ipAddress,clientAppUsed,isInteractive,conditionalAccessStatus,riskLevelAggregated"
+    }
+}
 
-param(
-    [int]$DaysBack = 14,
-    [string]$OutputPath = (Join-Path (Get-Location) 'output')
-)
+function Classify-ARMRiskRow {
+    param($s)
+    $risks = @()
+    $impact = 'None'
 
-Set-StrictMode -Version Latest
-$ErrorActionPreference = 'Stop'
+    if (-not $s.IsInteractive -and $s.ConditionalAccessStatus -ne 'satisfied') {
+        $risks += 'Non-interactive without satisfied CA'
+        $impact = 'High - Likely to fail under stricter enforcement'
+    }
+    if ($s.ClientAppUsed -eq 'Other clients' -and $s.AppDisplayName -match 'ServicePrincipal') {
+        $risks += 'Service principal using legacy flow'
+        $impact = 'High - Migrate to Managed Identity'
+    }
 
-Write-Host '[06] Auditing ARM non-interactive write sign-ins...' -ForegroundColor Cyan
+    [PSCustomObject]@{
+        TenantId       = $null
+        SubscriptionId = $null
+        CorrelationId  = $s.Id
+        Timestamp      = $s.CreatedDateTime
+        UserPrincipalName = $s.UserPrincipalName
+        IPAddress      = $s.IpAddress
+        UserAgent      = $null
+        ClientAppUsed  = $s.ClientAppUsed
+        ResourceId     = $null
+        Action         = $null
+        OperationName  = $null
+        PrincipalId    = $null
+        AppId          = $null
+        IsInteractive  = $s.IsInteractive
+        IsServicePrincipal = ($s.UserPrincipalName -match '^[0-9a-f-]{36}@')
+        MFA_Required   = $null
+        MFA_Completed  = if ($s.ConditionalAccessStatus -eq 'satisfied') {$true} else {$false}
+        RiskLevel      = if ($risks.Count -ge 2) {'High'} elseif ($risks.Count -eq 1) {'Medium'} else {'Low'}
+        Phase2Impact   = $impact
+    }
+}
 
-# Placeholder: implement sign-in query and filtering for create/update/delete operations
+function Get-ARMSignInFindings {
+    $signins = Get-SignInsWindow
+    foreach ($s in $signins) { Classify-ARMRiskRow -s $s }
+}
 
-Write-Host '[06] ARM sign-ins audit complete.' -ForegroundColor Green
-
-
+# ENTRY
+if ($MyInvocation.PSScriptRoot) {
+    $data = Get-ARMSignInFindings
+    $out  = Join-Path $PSScriptRoot '..\..\output\ARM_SignIns.csv'
+    $data | Export-Csv -NoTypeInformation -Path $out -Encoding UTF8
+    Write-Log INFO "Wrote $($data.Count) sign-in rows to $out"
+}

@@ -1,0 +1,28 @@
+
+title = "Flow Evolve - Gitleaks Config (Baseline)"
+# Inherits default gitleaks rules. Add allowlist/overrides below as needed.
+
+[allowlist]
+description = "Allow common test/example tokens and non-secret patterns"
+# Paths often containing fixtures or fake secrets
+paths = [
+  '''^examples/''',
+  '''^tests?/''',
+  '''^docs?/assets?/''',
+  '''^dist/''',
+  '''^output/''',
+]
+# Regex patterns to ignore (example placeholder secrets)
+regexes = [
+  '''(?i)(<gh_token>|<azdo_pat>|<client_secret>|<password>|dummy|example|sample)'''
+]
+
+# You can also exclude specific files by SHA if needed:
+# commits = ["<commit-sha>"]
+# repos = ["github.com/org/repo"]
+
+# To tune sensitivity, consider enabling entropy checks only for specific filetypes:
+# [rules]
+#   [[rules.allowlist]]
+#   description = "ignore csv reports"
+#   paths = ['''\.csv$''']

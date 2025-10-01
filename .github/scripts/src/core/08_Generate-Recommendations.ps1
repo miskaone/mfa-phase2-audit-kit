@@ -1,3 +1,4 @@
+
 <# 
 .SYNOPSIS
   Produce prioritized remediation guidance from prior outputs
@@ -25,17 +26,18 @@ param(
   [Parameter()][int]$DaysBack = 14
 )
 
-Import-Module "$PSScriptRoot\..\..\scripts\Common.psm1" -Force
+Import-Module "/mnt/data/scripts/Common.psm1" -Force
 Set-StrictMode -Version Latest
 
 $ErrorActionPreference = "Stop"
 
-# 1) Ensure modules (no Graph connection needed for this script)
+# 1) Ensure modules & connect Graph
 Ensure-Modules -Names @("Microsoft.Graph", "Az.Accounts", "Az.Resources")
+Connect-GraphIfNeeded -Scopes @("Directory.Read.All")
 
 # 2) Resolve output path
 $out = New-OutputPath -Root $OutputRoot -Prefix "output"
-$mdFile = Join-Path $out "MFA_Phase2_Findings.md"
+$csv = Join-Path $out "MFA_Phase2_Findings.md"
 
 # 3) Key functions (stubs)
 
@@ -51,9 +53,10 @@ function Build-Recommendations {
 }
 function Invoke-TargetQuery {
     param([int]$DaysBack)
-    $data = Load-Inputs -Root ".\output"
+    $data = Load-Inputs -Root ".\\output"
     $md = Build-Recommendations -Data $data
-    return $md
+    # Export markdown by returning an object; orchestration script will handle writing
+    return @([PSCustomObject]@{ Markdown = ($md -join "`n") })
 }
 
 
@@ -61,9 +64,8 @@ function Invoke-TargetQuery {
 Write-Log INFO "Running Generate-Recommendations ..."
 
 try {
-    $markdown = Invoke-TargetQuery -DaysBack $DaysBack
-    $markdown | Out-File -FilePath $mdFile -Encoding UTF8
-    Write-Log INFO "Wrote recommendations to $mdFile"
+    $rows = Invoke-TargetQuery -DaysBack $DaysBack
+    Export-Table -Data $rows -Path $csv
 } catch {
     Write-Log ERROR $_.Exception.Message
     throw

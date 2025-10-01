@@ -1,0 +1,178 @@
+{
+  "phases": [
+    "Phase 1: Core functionality (privileged users, CA policies, recommendations)",
+    "Phase 2: Service account analysis (SPs, admin auth, sign-ins)",
+    "Phase 3: Resource analysis (Managed Identity)",
+    "Phase 4: CI/CD integration"
+  ],
+  "scripts": [
+    {
+      "name": "02_Audit-PrivilegedUsers.ps1",
+      "scopes": [
+        "Directory.Read.All",
+        "RoleManagement.Read.Directory",
+        "UserAuthenticationMethod.Read.All"
+      ],
+      "output": "Admins_ByRole.csv",
+      "dependencies": [
+        "Microsoft.Graph"
+      ],
+      "env": [],
+      "key_functions": [
+        "Get-PrivilegedUsers",
+        "Join-AuthMethods",
+        "Invoke-TargetQuery"
+      ]
+    },
+    {
+      "name": "03_Audit-ServicePrincipals.ps1",
+      "scopes": [
+        "Directory.Read.All"
+      ],
+      "output": "ServicePrincipals_Credentials.csv",
+      "dependencies": [
+        "Microsoft.Graph"
+      ],
+      "env": [],
+      "key_functions": [
+        "Get-ServicePrincipals",
+        "Classify-Credential",
+        "Invoke-TargetQuery"
+      ]
+    },
+    {
+      "name": "04_Audit-ConditionalAccess.ps1",
+      "scopes": [
+        "Policy.Read.All",
+        "Policy.Read.ConditionalAccess"
+      ],
+      "output": "ConditionalAccess_Policies.csv",
+      "dependencies": [
+        "Microsoft.Graph"
+      ],
+      "env": [],
+      "key_functions": [
+        "Get-ConditionalAccessPolicies",
+        "Invoke-TargetQuery"
+      ]
+    },
+    {
+      "name": "05_Audit-AdminAuthMethods.ps1",
+      "scopes": [
+        "UserAuthenticationMethod.Read.All",
+        "Directory.Read.All"
+      ],
+      "output": "Admin_AuthMethods.csv",
+      "dependencies": [
+        "Microsoft.Graph"
+      ],
+      "env": [],
+      "key_functions": [
+        "Get-AdminUsers",
+        "Get-UserAuthSummary",
+        "Invoke-TargetQuery"
+      ]
+    },
+    {
+      "name": "06_Audit-ARM-WriteSignIns.ps1",
+      "scopes": [
+        "AuditLog.Read.All"
+      ],
+      "output": "ARM_SignIns_NonInteractive.csv",
+      "dependencies": [
+        "Microsoft.Graph"
+      ],
+      "env": [],
+      "key_functions": [
+        "Query-ArmWriteSignIns",
+        "Assess-Phase2Impact",
+        "Invoke-TargetQuery"
+      ]
+    },
+    {
+      "name": "07_Audit-MI-CapableResources.ps1",
+      "scopes": [
+        "Directory.Read.All"
+      ],
+      "output": "ManagedIdentity_Capable_Resources.csv",
+      "dependencies": [
+        "Az.Accounts",
+        "Az.Resources"
+      ],
+      "env": [],
+      "key_functions": [
+        "Get-MIResources",
+        "Invoke-TargetQuery"
+      ]
+    },
+    {
+      "name": "08_Generate-Recommendations.ps1",
+      "scopes": [
+        "Directory.Read.All"
+      ],
+      "output": "MFA_Phase2_Findings.md",
+      "dependencies": [],
+      "env": [],
+      "key_functions": [
+        "Load-Inputs",
+        "Build-Recommendations",
+        "Invoke-TargetQuery"
+      ]
+    },
+    {
+      "name": "09_Audit-GitHubActions.ps1",
+      "scopes": [],
+      "output": "GitHub_Actions_Findings.csv",
+      "dependencies": [],
+      "env": [
+        "GITHUB_TOKEN"
+      ],
+      "key_functions": [
+        "Get-GitHubWorkflows",
+        "Analyze-GHActions",
+        "Invoke-TargetQuery"
+      ]
+    },
+    {
+      "name": "10_Audit-AzureDevOps.ps1",
+      "scopes": [],
+      "output": "AzDO_Findings.csv",
+      "dependencies": [],
+      "env": [
+        "AZDO_ORG_URL",
+        "AZDO_PAT"
+      ],
+      "key_functions": [
+        "Get-AzDOItems",
+        "Analyze-AzDO",
+        "Invoke-TargetQuery"
+      ]
+    },
+    {
+      "name": "11_Generate-Extended-Recommendations.ps1",
+      "scopes": [],
+      "output": "Extended_Findings.csv",
+      "dependencies": [],
+      "env": [],
+      "key_functions": [
+        "Load-CICDInputs",
+        "Build-Extended",
+        "Invoke-TargetQuery"
+      ]
+    }
+  ],
+  "testing": {
+    "strategy": [
+      "Unit-test functions with Pester (mock Graph/Az calls).",
+      "Golden-file tests for CSV shape and headers.",
+      "Smoke test Run-Audit.ps1 with -OutputRoot temp and no external tokens.",
+      "Contract tests: ensure required columns exist per output spec."
+    ],
+    "common_patterns": [
+      "Use Common.psm1 for logging/export/graph connection.",
+      "All scripts accept -OutputRoot and optional -DaysBack (where relevant).",
+      "CSV encoding UTF-8, no type information.",
+      "Fail fast on errors; log INFO/WARN/ERROR lines."
+    ]
+  }
+}

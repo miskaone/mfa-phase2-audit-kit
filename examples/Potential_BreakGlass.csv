@@ -1,0 +1,4 @@
+UserId,UserPrincipalName,DisplayName,ReasonFlagged,MFA_Enabled,IsExcludedFromCA,ExceptionsPolicyName,IsBreakGlass
+99999999-9999-9999-9999-999999999999,breakglass1@contoso.com,BreakGlass Admin 1,Excluded from Conditional Access,False,True,Emergency Access,True
+88888888-8888-8888-8888-888888888888,breakglass2@contoso.com,BreakGlass Admin 2,High-privilege account without MFA,False,False,,True
+22222222-2222-2222-2222-222222222222,bob@contoso.com,Bob Smith,Privileged with password-based auth,False,False,,False

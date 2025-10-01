@@ -1,0 +1,16 @@
+extends: default
+
+rules:
+  document-start: disable
+  line-length:
+    max: 140
+    level: warning
+  truthy:
+    allowed-values: ['true', 'false', 'on', 'off', 'yes', 'no']
+  indentation:
+    indent-sequences: consistent
+ignore: |
+  node_modules
+  .git
+  dist
+  .github/workflows/*.yml  # optional if you prefer to lint workflows too; remove to include

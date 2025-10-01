@@ -1,3 +1,4 @@
+
 <# 
 .SYNOPSIS
   Detect long-lived PAT usage and OIDC readiness in GitHub Actions workflows
@@ -17,17 +18,12 @@ param(
   [Parameter()][string]$OutputRoot = ".\output"
 )
 
-Import-Module "$PSScriptRoot\..\..\scripts\Common.psm1" -Force
+Import-Module "/mnt/data/scripts/Common.psm1" -Force
 Set-StrictMode -Version Latest
 
 $ErrorActionPreference = "Stop"
 
-# 1) Validate environment variables
-if (-not $env:GITHUB_TOKEN) {
-    throw "GITHUB_TOKEN environment variable is required for GitHub Actions audit"
-}
-
-# 2) Resolve output path
+# 1) Resolve output path
 $out = New-OutputPath -Root $OutputRoot -Prefix "output"
 $csv = Join-Path $out "GitHub_Actions_Findings.csv"
 

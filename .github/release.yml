@@ -1,0 +1,36 @@
+
+name: Release (zip src/scripts/docs)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create artifact zip
+        run: |
+          set -e
+          ZIP_NAME="mfa-phase2-audit-kit-${GITHUB_REF_NAME}.zip"
+          echo "Creating $ZIP_NAME"
+          mkdir -p dist
+          zip -r "dist/${ZIP_NAME}" src scripts docs -x "*/node_modules/*" "*/.git/*" || true
+          ls -la dist
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          files: |
+            dist/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

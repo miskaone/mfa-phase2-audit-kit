@@ -1,3 +1,4 @@
+
 <# 
 .SYNOPSIS
   Append CI/CD-specific remediation steps to overall findings
@@ -17,7 +18,7 @@ param(
   [Parameter()][string]$OutputRoot = ".\output"
 )
 
-Import-Module "$PSScriptRoot\..\..\scripts\Common.psm1" -Force
+Import-Module "/mnt/data/scripts/Common.psm1" -Force
 Set-StrictMode -Version Latest
 
 $ErrorActionPreference = "Stop"
@@ -29,7 +30,7 @@ $csv = Join-Path $out "Extended_Findings.csv"
 # 2) Key functions (stubs)
 
 function Load-CICDInputs {
-    param([string]$Root = ".\output")
+    param([string]$Root = ".\\output")
     # TODO: Load GitHub_Actions_Findings.csv and AzDO_Findings.csv
     return [PSCustomObject]@{ GitHub=@(); AzDO=@() }
 }

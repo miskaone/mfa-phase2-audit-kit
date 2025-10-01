@@ -1,0 +1,6 @@
+SubscriptionId,ResourceGroup,ResourceType,ResourceName,Location,SupportsManagedIdentity,IdentityConfigured,ManagedIdentityType,UserAssignedIdentityIds,PotentialMigrationTarget
+00000000-0000-0000-0000-000000000000,rg-core-ops,Microsoft.Web/sites,app-core-api,eastus,True,True,SystemAssigned,,False
+00000000-0000-0000-0000-000000000000,rg-data,Microsoft.ContainerRegistry/registries,acrprod01,eastus2,True,False,None,,True
+00000000-0000-0000-0000-000000000000,rg-ml,Microsoft.MachineLearningServices/workspaces,mlw-prod,centralus,True,True,UserAssigned,/subscriptions/000.../resourceGroups/rg-mi/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mi-mlw,False
+00000000-0000-0000-0000-000000000000,rg-network,Microsoft.ApiManagement/service,apim-gateway,westus3,True,False,None,,True
+00000000-0000-0000-0000-000000000000,rg-web,Microsoft.App/containerApps,taskscribe-api,eastus,True,False,None,,True

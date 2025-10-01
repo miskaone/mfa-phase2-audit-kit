@@ -5,29 +5,26 @@ Installs required PowerShell modules and validates environment prerequisites.
 .DESCRIPTION
 Ensures PowerShell 7+, installs Microsoft.Graph, Az.Accounts, Az.Resources.
 Read-only setup; no resource mutations.
+
+.DEPENDENCIES
+Common.psm1
+
+.ENVIRONMENT
+None
 #>
 
+[CmdletBinding()]
 param()
 
+Import-Module "$PSScriptRoot\..\..\scripts\Common.psm1" -Force
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-Write-Host '[01] Checking prerequisites...' -ForegroundColor Cyan
+Write-Log INFO "Checking prerequisites..."
 
-function Install-ModuleIfMissing {
-    param(
-        [Parameter(Mandatory=$true)][string]$ModuleName
-    )
-    if (-not (Get-Module -ListAvailable -Name $ModuleName)) {
-        Write-Host "Installing module: $ModuleName" -ForegroundColor Yellow
-        Install-Module -Name $ModuleName -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
-    }
-}
+# Ensure required modules are installed and imported
+Ensure-Modules -Names @("Microsoft.Graph", "Az.Accounts", "Az.Resources")
 
-Install-ModuleIfMissing -ModuleName 'Microsoft.Graph'
-Install-ModuleIfMissing -ModuleName 'Az.Accounts'
-Install-ModuleIfMissing -ModuleName 'Az.Resources'
-
-Write-Host '[01] Prerequisites complete.' -ForegroundColor Green
+Write-Log INFO "Prerequisites complete."
 
 
